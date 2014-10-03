@@ -1,0 +1,30 @@
+{
+  "name": "metalsmith-serve",
+  "description": "A metalsmith plugin to serve the build directory.",
+  "version": "0.0.1",
+  "license": "MIT",
+
+  "main": "lib/index.js",
+
+  "author": {
+    "name": "Mayo Jordanov",
+    "url": "http://oyam.ca"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mayo/metalsmith-serve"
+  },
+
+  "dependencies": {
+    "chalk": "^0.4.0",
+    "node-static": "^0.7.4"
+  },
+
+  "devDependencies": {
+    "mocha": "^1.x",
+    "metalsmith": "^0.2.0"
+  },
+
+  "readmeFilename": "README.md"
+}

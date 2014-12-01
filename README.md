@@ -1,7 +1,7 @@
 
 # metalsmith-serve
 
-  A metalsmith plugin to serve the build directory. Best used in development and with metalsmith-watch.
+A metalsmith plugin to serve the build directory. Best used in development and with metalsmith-watch.
 
 ## Installation
 

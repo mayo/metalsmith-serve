@@ -3,22 +3,47 @@ var assert = require('assert');
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
+var mkdirp = require('mkdirp').sync;
 var Metalsmith = require('metalsmith');
 var serve = require('..');
 
-describe('metalsmith-serve', function(){
+var port = 8081;
+
+describe('metalsmith-serve', function() {
+
+  var metalsmith;
+  var servePlugin;
+
+  before(function(done) {
+    metalsmith = Metalsmith("test/fixtures/site");
+
+    servePlugin = serve({
+      verbose: false,
+      "port": port,
+      listDirectories: true
+    });
+
+    metalsmith
+      .use(servePlugin)
+      .build(function(err) {
+        if (err) throw err;
+
+        //create empty directory for testing, as metalsmith doesn't preserve empty directories
+        mkdirp(path.join(metalsmith.destination(), "emptydir"));
+        done();
+      });
+
+  });
+
+  after(function(done) {
+    servePlugin.shutdown(done);
+  });
 
   it('should serve on local port', function(done){
-    var port = 8081;
 
-    var test = function(metalsmith) {
-      var options = {
-        host: "localhost",
-        "port": port,
-        path: "/"
-      };
-
-      var callback = function(res) {
+    var req = http.request(
+      { host: "localhost", "port": port, path: "/" },
+      function(res) {
         var body = '';
 
         res.on('data', function(buf) {
@@ -27,27 +52,133 @@ describe('metalsmith-serve', function(){
 
         res.on('end', function() {
           assert.equal(res.statusCode, 200);
-
           var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
           assert.equal(body, contents);
-
-          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
-      };
 
-      var req = http.request(options, callback)
-      req.end();
+        done();
+
+      }
+    ).end();
+
+  });
+
+  it('should return 404 for non-existent file', function(done){
+    var req = http.request(
+      { host: "localhost", "port": port, path: "/lostfile.txt" },
+      function(res) {
+        var body = '';
+
+        res.on('data', function(buf) {
+          body += buf;
+        });
+
+        res.on('end', function() {
+          assert.equal(res.statusCode, 404);
+        });
+
+        res.on('error', function(e) {
+          throw(e);
+        });
+
+        done();
+
+      }
+    ).end();
+
+  });
+
+  it('should return 404 for non-existent file in subdirectory', function(done){
+    var req = http.request(
+      { host: "localhost", "port": port, path: "/dir/lostfile.txt" },
+      function(res) {
+        var body = '';
+
+        res.on('data', function(buf) {
+          body += buf;
+        });
+
+        res.on('end', function() {
+          assert.equal(res.statusCode, 404);
+        });
+
+        res.on('error', function(e) {
+          throw(e);
+        });
+
+        done();
+
+      }
+    ).end();
+
+  });
+
+});
+
+
+describe('metalsmith-serve with custom indexFile', function(){
+
+  var metalsmith;
+  var servePlugin;
+
+  before(function(done) {
+    metalsmith = Metalsmith("test/fixtures/customindex");
+
+    servePlugin = serve({
+      verbose: false,
+      "port": port,
+      indexFile: "index.txt"
+    });
+
+    metalsmith
+      .use(servePlugin)
+      .build(function(err) {
+        if (err) throw err;
+        done();
+      });
+  });
+
+  after(function(done) {
+    servePlugin.shutdown(done);
+  });
+
+  it('should serve csustom index file', function(done){
+
+    var callback = function(res) {
+      var body = '';
+
+      res.on('data', function(buf) {
+        body += buf;
+      });
+
+      res.on('end', function() {
+        assert.equal(res.statusCode, 200);
+        var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.txt"), "utf8");
+        assert.equal(body, contents);
+      });
+
+      res.on('error', function(e) {
+        throw(e);
+      });
+
+      done();
 
     };
 
-    var metalsmith = Metalsmith("test/fixtures/site");
-    metalsmith
-      .use(serve({ "port": port }))
-      .build(function() { test(metalsmith); });
+    var options = {
+      host: "localhost",
+      "port": port,
+      path: "/"
+    };
+
+    var req = http.request(options, callback)
+    req.end();
+
+
   });
 
 });

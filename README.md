@@ -16,7 +16,9 @@ var serve = require('metalsmith-serve');
 
 metalsmith(__dirname)
   .use(serve())
-  .build();
+  .build(function(err) {
+    if (err) { throw err; }
+  });
 ```
 
 This will serve Metalsmith's build directory on localhost:8080. By default, metalsmith-serve will only log error requests.
@@ -32,7 +34,9 @@ metalsmith(__dirname)
     port: 8081,
     verbose: true
   }))
-  .build();
+  .build(function(err) {
+    if (err) { throw err; }
+  });
 ```
 
 This will serve Metalsmith's build directory on localhost:8081 and will show all served requests.

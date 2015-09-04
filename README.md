@@ -84,8 +84,8 @@ Redirects with [301](https://en.wikipedia.org/wiki/HTTP_301) headers unless the 
 e.g.
 ```js
 {
-  '/old_url.php'       : '/new_url/',
-  '/old_url.php?lang=en: '/en/new_url/'
+  '/old_url.php'        : '/new_url/',
+  '/old_url.php?lang=en': '/en/new_url/'
 }
 ```
 

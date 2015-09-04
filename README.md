@@ -63,9 +63,27 @@ Number of seconds to cache served files
 
 ### verbose
 Type: `Boolean`
-Default: false
+Default: `false`
 
 Log all requests
+
+### not_found
+Type: `String`
+Default: `undefined`
+
+Serves a [404](https://en.wikipedia.org/wiki/HTTP_404) file if the requested file isn't located
+e.g. '`/404.html`'
+
+### redirects
+Type: `Object`
+Default: `{}`
+
+Redirects with [301](https://en.wikipedia.org/wiki/HTTP_301) headers unless the file is located
+e.g. ```js
+{
+  '/old_url.php': '/new_url/index.html'
+}
+```
 
 ## License
 

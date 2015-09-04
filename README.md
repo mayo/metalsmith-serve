@@ -79,12 +79,13 @@ e.g. '`/404.html`'
 Type: `Object`
 Default: `{}`
 
-Redirects with [301](https://en.wikipedia.org/wiki/HTTP_301) headers unless the file is located
+Redirects with [301](https://en.wikipedia.org/wiki/HTTP_301) headers unless the file is located.
 
 e.g.
 ```js
 {
-  '/old_url.php': '/new_url/index.html'
+  '/old_url.php'       : '/new_url/',
+  '/old_url.php?lang=en: '/en/new_url/'
 }
 ```
 

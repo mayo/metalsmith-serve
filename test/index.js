@@ -198,7 +198,8 @@ describe('metalsmith-serve', function() {
       "port": port,
       "not_found": "/404.html",
       "redirects": {
-        "/redirect_file.txt": "/index.html"
+        "/redirect_file.txt": "/index.html",
+        '/redirect_file.txt?alt=true': '/404.html'
       }
     });
 
@@ -283,6 +284,59 @@ describe('metalsmith-serve', function() {
         res.on('end', function() {
           assert.equal(res.statusCode, 301);
           assert.equal(res.headers.location, "/index.html")
+        });
+
+        res.on('error', function(e) {
+          throw(e);
+        });
+
+        done();
+
+      }
+    ).end();
+
+  });
+
+  it('should return 301 for configured redirections with params', function(done){
+    var req = http.request(
+      { host: "localhost", "port": port, path: "/redirect_file.txt?alt=true" },
+      function(res) {
+        var body = '';
+
+        res.on('data', function(buf) {
+          body += buf;
+        });
+
+        res.on('end', function() {
+          assert.equal(res.statusCode, 301);
+          assert.equal(res.headers.location, "/404.html")
+        });
+
+        res.on('error', function(e) {
+          throw(e);
+        });
+
+        done();
+
+      }
+    ).end();
+
+  });
+
+  it('should return 404 for unmatched redirection with params', function(done){
+    var req = http.request(
+      { host: "localhost", "port": port, path: "/redirect_file.txt?alt=false" },
+      function(res) {
+        var body = '';
+
+        res.on('data', function(buf) {
+          body += buf;
+        });
+
+        res.on('end', function() {
+          assert.equal(res.statusCode, 404);
+          var contents = fs.readFileSync(path.join(metalsmith.destination(), "404.html"), "utf8");
+          assert.equal(body, contents);
         });
 
         res.on('error', function(e) {

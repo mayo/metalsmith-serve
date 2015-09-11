@@ -185,21 +185,23 @@ describe('metalsmith-serve with custom indexFile', function(){
 
 
 // not_found file serving and redirects
-describe('metalsmith-serve', function() {
+describe('metalsmith-serve custom http errors and redirects', function() {
 
   var metalsmith;
   var servePlugin;
 
   before(function(done) {
-    metalsmith = Metalsmith("test/fixtures/site");
+    metalsmith = Metalsmith('test/fixtures/site');
 
     servePlugin = serve({
       verbose: false,
       "port": port,
-      "not_found": "/404.html",
+      "http_error_files": {
+        404: "/404.html"
+      },
       "redirects": {
         "/redirect_file.txt": "/index.html",
-        '/redirect_file.txt?alt=true': '/404.html'
+        "/redirect_file.txt?alt=true": "/index.html"
       }
     });
 
@@ -309,7 +311,7 @@ describe('metalsmith-serve', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 301);
-          assert.equal(res.headers.location, "/404.html")
+          assert.equal(res.headers.location, "/index.html")
         });
 
         res.on('error', function(e) {

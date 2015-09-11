@@ -32,7 +32,14 @@ var serve = require('metalsmith-serve');
 metalsmith(__dirname)
   .use(serve({
     port: 8081,
-    verbose: true
+    verbose: true,
+    http_error_files: {
+      404: "/404.html"
+    },
+    redirects: {
+      '/old_url.php'        : '/new_url/',
+      '/old_url.php?lang=en': '/en/new_url/'
+    }
   }))
   .build(function(err) {
     if (err) { throw err; }
@@ -40,6 +47,9 @@ metalsmith(__dirname)
 ```
 
 This will serve Metalsmith's build directory on localhost:8081 and will show all served requests.
+Requests for missing files will be served with the contents of `/404.html`.
+`/old_url.php` and `/old_url.php?lang=en` will be redirected with [301](https://en.wikipedia.org/wiki/HTTP_301) headers.
+
 
 ## Options
 
@@ -67,13 +77,18 @@ Default: `false`
 
 Log all requests
 
-### not_found
-Type: `String`
+### http_error_files
+Type: `Object`
 Default: `undefined`
 
-Serves a [404](https://en.wikipedia.org/wiki/HTTP_404) file if the requested file isn't located
+Serves a corresponding file to error codes.  The common usage is a [404](https://en.wikipedia.org/wiki/HTTP_404) file if the requested file isn't located.
 
-e.g. '`/404.html`'
+e.g.
+```js
+"http_error_files": {
+  404: "/404.html"
+}
+```
 
 ### redirects
 Type: `Object`
@@ -83,7 +98,7 @@ Redirects with [301](https://en.wikipedia.org/wiki/HTTP_301) headers unless the 
 
 e.g.
 ```js
-{
+"redirects": {
   '/old_url.php'        : '/new_url/',
   '/old_url.php?lang=en': '/en/new_url/'
 }

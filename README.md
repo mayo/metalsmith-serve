@@ -71,6 +71,12 @@ Default: `0`
 
 Number of seconds to cache served files
 
+### document_root
+Type: `String`
+Default: `metalsmith.destination()`
+
+Directory which to serve. Given path will be resolved with `path.resolve()`
+
 ### verbose
 Type: `Boolean`
 Default: `false`

@@ -183,6 +183,69 @@ describe('metalsmith-serve with custom indexFile', function(){
 
 });
 
+describe('metalsmith-serve with custom document_root', function(){
+
+  var metalsmith;
+  var servePlugin;
+  var docRoot;
+
+  before(function(done) {
+    metalsmith = Metalsmith("test/fixtures/site");
+    docRoot = 'test/fixtures/customindex/src';
+
+    servePlugin = serve({
+      document_root: docRoot,
+      verbose: false,
+      "port": port,
+      indexFile: "index.txt"
+    });
+
+    metalsmith
+      .use(servePlugin)
+      .build(function(err) {
+        if (err) throw err;
+        done();
+      });
+  });
+
+  after(function(done) {
+    servePlugin.shutdown(done);
+  });
+
+  it('should serve custom document root', function(done){
+
+    var callback = function(res) {
+      var body = '';
+
+      res.on('data', function(buf) {
+        body += buf;
+      });
+
+      res.on('end', function() {
+        assert.equal(res.statusCode, 200);
+        var contents = fs.readFileSync(path.join(docRoot, 'index.txt'), "utf8");
+        assert.equal(body, contents);
+      });
+
+      res.on('error', function(e) {
+        throw(e);
+      });
+
+      done();
+    };
+
+    var options = {
+      host: "localhost",
+      "port": port,
+      path: "/"
+    };
+
+    var req = http.request(options, callback)
+    req.end();
+
+  });
+});
+
 
 // not_found file serving and redirects
 describe('metalsmith-serve custom http errors and redirects', function() {

@@ -6,7 +6,7 @@ var fs         = require('fs');
 var path       = require('path');
 var mkdirp     = require('mkdirp').sync;
 var Metalsmith = require('metalsmith');
-var serve      = require('..');
+var serve      = require('../lib/index');
 var port       = 8081;
 
 describe('metalsmith-serve', function() {
@@ -29,16 +29,10 @@ describe('metalsmith-serve', function() {
         if (err) {
             throw err;
         }
-
         //create empty directory for testing, as metalsmith doesn't preserve empty directories
         mkdirp(path.join(metalsmith.destination(), "emptydir"));
         done();
       });
-
-  });
-
-  after(function(done) {
-    servePlugin.shutdown(done);
   });
 
   it('should serve on local port', function(done){
@@ -146,10 +140,6 @@ describe('metalsmith-serve with custom indexFile', function(){
       });
   });
 
-  after(function(done) {
-    servePlugin.shutdown(done);
-  });
-
   it('should serve custom index file', function(done){
 
     var callback = function(res) {
@@ -181,8 +171,6 @@ describe('metalsmith-serve with custom indexFile', function(){
 
     var req = http.request(options, callback);
     req.end();
-
-
   });
 
 });
@@ -214,9 +202,6 @@ describe('metalsmith-serve with custom document_root', function(){
       });
   });
 
-  after(function(done) {
-    servePlugin.shutdown(done);
-  });
 
   it('should serve custom document root', function(done){
 
@@ -283,10 +268,6 @@ describe('metalsmith-serve custom http errors and redirects', function() {
         done();
       });
 
-  });
-
-  after(function(done) {
-    servePlugin.shutdown(done);
   });
 
   it('should serve on local port', function(done){

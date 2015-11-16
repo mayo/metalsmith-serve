@@ -1,13 +1,13 @@
+'use strict';
 
-var assert = require('assert');
-var http = require('http');
-var fs = require('fs');
-var path = require('path');
-var mkdirp = require('mkdirp').sync;
+var assert     = require('assert');
+var http       = require('http');
+var fs         = require('fs');
+var path       = require('path');
+var mkdirp     = require('mkdirp').sync;
 var Metalsmith = require('metalsmith');
-var serve = require('..');
-
-var port = 8081;
+var serve      = require('../lib/index');
+var port       = 8081;
 
 describe('metalsmith-serve', function() {
 
@@ -26,22 +26,18 @@ describe('metalsmith-serve', function() {
     metalsmith
       .use(servePlugin)
       .build(function(err) {
-        if (err) throw err;
-
+        if (err) {
+            throw err;
+        }
         //create empty directory for testing, as metalsmith doesn't preserve empty directories
         mkdirp(path.join(metalsmith.destination(), "emptydir"));
         done();
       });
-
-  });
-
-  after(function(done) {
-    servePlugin.shutdown(done);
   });
 
   it('should serve on local port', function(done){
 
-    var req = http.request(
+   http.request(
       { host: "localhost", "port": port, path: "/" },
       function(res) {
         var body = '';
@@ -68,7 +64,7 @@ describe('metalsmith-serve', function() {
   });
 
   it('should return 404 for non-existent file', function(done){
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/lostfile.txt" },
       function(res) {
         var body = '';
@@ -93,7 +89,7 @@ describe('metalsmith-serve', function() {
   });
 
   it('should return 404 for non-existent file in subdirectory', function(done){
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/dir/lostfile.txt" },
       function(res) {
         var body = '';
@@ -137,13 +133,11 @@ describe('metalsmith-serve with custom indexFile', function(){
     metalsmith
       .use(servePlugin)
       .build(function(err) {
-        if (err) throw err;
+        if (err) {
+            throw err;
+        }
         done();
       });
-  });
-
-  after(function(done) {
-    servePlugin.shutdown(done);
   });
 
   it('should serve custom index file', function(done){
@@ -175,10 +169,8 @@ describe('metalsmith-serve with custom indexFile', function(){
       path: "/"
     };
 
-    var req = http.request(options, callback)
+    var req = http.request(options, callback);
     req.end();
-
-
   });
 
 });
@@ -203,14 +195,13 @@ describe('metalsmith-serve with custom document_root', function(){
     metalsmith
       .use(servePlugin)
       .build(function(err) {
-        if (err) throw err;
+        if (err) {
+            throw err;
+        }
         done();
       });
   });
 
-  after(function(done) {
-    servePlugin.shutdown(done);
-  });
 
   it('should serve custom document root', function(done){
 
@@ -240,7 +231,7 @@ describe('metalsmith-serve with custom document_root', function(){
       path: "/"
     };
 
-    var req = http.request(options, callback)
+    var req = http.request(options, callback);
     req.end();
 
   });
@@ -271,19 +262,17 @@ describe('metalsmith-serve custom http errors and redirects', function() {
     metalsmith
       .use(servePlugin)
       .build(function(err) {
-        if (err) throw err;
+        if (err) {
+          throw err;
+        }
         done();
       });
 
   });
 
-  after(function(done) {
-    servePlugin.shutdown(done);
-  });
-
   it('should serve on local port', function(done){
 
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/" },
       function(res) {
         var body = '';
@@ -310,7 +299,7 @@ describe('metalsmith-serve custom http errors and redirects', function() {
   });
 
   it('should return 404 and not_found file for non-existent file', function(done){
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/lostfile.txt" },
       function(res) {
         var body = '';
@@ -337,7 +326,7 @@ describe('metalsmith-serve custom http errors and redirects', function() {
   });
 
   it('should return 301 for configured redirections', function(done){
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/redirect_file.txt" },
       function(res) {
         var body = '';
@@ -348,7 +337,7 @@ describe('metalsmith-serve custom http errors and redirects', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 301);
-          assert.equal(res.headers.location, "/index.html")
+          assert.equal(res.headers.location, "/index.html");
         });
 
         res.on('error', function(e) {
@@ -363,7 +352,7 @@ describe('metalsmith-serve custom http errors and redirects', function() {
   });
 
   it('should return 301 for configured redirections with params', function(done){
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/redirect_file.txt?alt=true" },
       function(res) {
         var body = '';
@@ -374,7 +363,7 @@ describe('metalsmith-serve custom http errors and redirects', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 301);
-          assert.equal(res.headers.location, "/index.html")
+          assert.equal(res.headers.location, "/index.html");
         });
 
         res.on('error', function(e) {
@@ -389,7 +378,7 @@ describe('metalsmith-serve custom http errors and redirects', function() {
   });
 
   it('should return 404 for unmatched redirection with params', function(done){
-    var req = http.request(
+    http.request(
       { host: "localhost", "port": port, path: "/redirect_file.txt?alt=false" },
       function(res) {
         var body = '';

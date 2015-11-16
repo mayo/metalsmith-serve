@@ -1,7 +1,7 @@
 {
   "name": "metalsmith-serve",
   "description": "A metalsmith plugin to serve the build directory.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "main": "lib/index.js",
   "author": "Mayo Jordanov (http://oyam.ca)",

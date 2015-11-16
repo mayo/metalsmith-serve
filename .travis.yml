@@ -10,3 +10,4 @@ deploy:
   on:
     tags: true
     repo: mayo/metalsmith-serve
+    node: '4.1'

@@ -416,3 +416,63 @@ describe('metalsmith-serve custom http errors and redirects', function() {
   });
 
 });
+
+describe('metalsmith-serve with no options', function(){
+
+  var metalsmith;
+  var servePlugin;
+
+  before(function(done) {
+    metalsmith = Metalsmith("test/fixtures/site");
+
+    servePlugin = serve();
+
+    metalsmith
+      .use(servePlugin)
+      .build(function(err) {
+        if (err) throw err;
+        done();
+      });
+  });
+
+  after(function(done) {
+    servePlugin.shutdown(done);
+  });
+
+  it('should just work', function(done){
+
+    var callback = function(res) {
+      var body = '';
+
+      res.on('data', function(buf) {
+        body += buf;
+      });
+
+      res.on('end', function() {
+        assert.equal(res.statusCode, 200);
+        var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
+        assert.equal(body, contents);
+      });
+
+      res.on('error', function(e) {
+        throw(e);
+      });
+
+      done();
+
+    };
+
+    var options = {
+      host: "localhost",
+      "port": servePlugin.defaults.port,
+      path: "/"
+    };
+
+    var req = http.request(options, callback)
+    req.end();
+
+
+  });
+
+});
+

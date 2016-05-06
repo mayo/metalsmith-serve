@@ -110,6 +110,12 @@ e.g.
 }
 ```
 
+### gzip
+Type: `Boolean`
+Default: `false`
+
+Enable `node-static`'s gzip option. [Read more here](https://github.com/cloudhead/node-static#gzip).
+
 ## License
 
   MIT

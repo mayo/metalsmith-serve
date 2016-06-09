@@ -473,3 +473,67 @@ describe('metalsmith-serve with no options', function(){
 
 });
 
+describe('metalsmith-serve shutdown', function () {
+
+  var metalsmith;
+  var servePlugin;
+
+  before(function (done) {
+    metalsmith = Metalsmith("test/fixtures/site");
+
+    servePlugin = serve();
+
+    metalsmith
+      .use(servePlugin)
+      .build(function (err) {
+        if (err) {
+          throw err;
+        }
+        done();
+      });
+  });
+
+  it('should shutdown the server and all connected sockets', function (done) {
+
+    var callback = function (res) {
+      var body = '';
+
+      res.on('data', function (buf) {
+        assert.ok(Object.keys(servePlugin.sockets).length > 0, 'More than one socket is open');
+        body += buf;
+      });
+
+      res.on('end', function () {
+        assert.equal(res.statusCode, 200);
+        var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
+        assert.equal(body, contents);
+
+
+        servePlugin.shutdown(function () {
+          assert.equal(Object.keys(servePlugin.sockets).length, 0, 'All sockets are closed');
+
+          done();
+        });
+
+      });
+
+      res.on('error', function (e) {
+        throw(e);
+      });
+
+    };
+
+    var options = {
+      host: "localhost",
+      "port": servePlugin.defaults.port,
+      path: "/"
+    };
+
+    var req = http.request(options, callback)
+    req.end();
+
+
+  });
+
+});
+

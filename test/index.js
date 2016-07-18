@@ -54,13 +54,13 @@ describe('metalsmith-serve', function() {
           assert.equal(res.statusCode, 200);
           var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
           assert.equal(body, contents);
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
 
-        done();
 
       }
     ).end();
@@ -79,13 +79,13 @@ describe('metalsmith-serve', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 404);
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
 
-        done();
 
       }
     ).end();
@@ -104,13 +104,13 @@ describe('metalsmith-serve', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 404);
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
 
-        done();
 
       }
     ).end();
@@ -159,13 +159,12 @@ describe('metalsmith-serve with custom indexFile', function(){
         assert.equal(res.statusCode, 200);
         var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.txt"), "utf8");
         assert.equal(body, contents);
+        done();
       });
 
       res.on('error', function(e) {
         throw(e);
       });
-
-      done();
 
     };
 
@@ -225,13 +224,14 @@ describe('metalsmith-serve with custom document_root', function(){
         assert.equal(res.statusCode, 200);
         var contents = fs.readFileSync(path.join(docRoot, 'index.txt'), "utf8");
         assert.equal(body, contents);
+        done();
       });
 
       res.on('error', function(e) {
         throw(e);
       });
 
-      done();
+
     };
 
     var options = {
@@ -296,13 +296,12 @@ describe('metalsmith-serve custom http errors and redirects', function() {
           assert.equal(res.statusCode, 200);
           var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
           assert.equal(body, contents);
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
-
-        done();
 
       }
     ).end();
@@ -323,13 +322,13 @@ describe('metalsmith-serve custom http errors and redirects', function() {
           assert.equal(res.statusCode, 404);
           var contents = fs.readFileSync(path.join(metalsmith.destination(), "404.html"), "utf8");
           assert.equal(body, contents);
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
 
-        done();
 
       }
     ).end();
@@ -348,14 +347,14 @@ describe('metalsmith-serve custom http errors and redirects', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 301);
-          assert.equal(res.headers.location, "/index.html")
+          assert.equal(res.headers.location, "/index.html");
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
 
-        done();
 
       }
     ).end();
@@ -374,14 +373,14 @@ describe('metalsmith-serve custom http errors and redirects', function() {
 
         res.on('end', function() {
           assert.equal(res.statusCode, 301);
-          assert.equal(res.headers.location, "/index.html")
+          assert.equal(res.headers.location, "/index.html");
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
 
-        done();
 
       }
     ).end();
@@ -402,13 +401,12 @@ describe('metalsmith-serve custom http errors and redirects', function() {
           assert.equal(res.statusCode, 404);
           var contents = fs.readFileSync(path.join(metalsmith.destination(), "404.html"), "utf8");
           assert.equal(body, contents);
+          done();
         });
 
         res.on('error', function(e) {
           throw(e);
         });
-
-        done();
 
       }
     ).end();
@@ -452,13 +450,76 @@ describe('metalsmith-serve with no options', function(){
         assert.equal(res.statusCode, 200);
         var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
         assert.equal(body, contents);
+        done();
       });
 
       res.on('error', function(e) {
         throw(e);
       });
 
-      done();
+    };
+
+    var options = {
+      host: "localhost",
+      "port": servePlugin.defaults.port,
+      path: "/"
+    };
+
+    var req = http.request(options, callback)
+    req.end();
+
+
+  });
+
+});
+
+describe('metalsmith-serve shutdown', function () {
+
+  var metalsmith;
+  var servePlugin;
+
+  before(function (done) {
+    metalsmith = Metalsmith("test/fixtures/site");
+
+    servePlugin = serve();
+
+    metalsmith
+      .use(servePlugin)
+      .build(function (err) {
+        if (err) {
+          throw err;
+        }
+        done();
+      });
+  });
+
+  it('should shutdown the server and all connected sockets', function (done) {
+
+    var callback = function (res) {
+      var body = '';
+
+      res.on('data', function (buf) {
+        assert.ok(Object.keys(servePlugin.sockets).length > 0, 'More than one socket is open');
+        body += buf;
+      });
+
+      res.on('end', function () {
+        assert.equal(res.statusCode, 200);
+        var contents = fs.readFileSync(path.join(metalsmith.destination(), "index.html"), "utf8");
+        assert.equal(body, contents);
+
+
+        servePlugin.shutdown(function () {
+          assert.equal(Object.keys(servePlugin.sockets).length, 0, 'All sockets are closed');
+
+          done();
+        });
+
+      });
+
+      res.on('error', function (e) {
+        throw(e);
+      });
 
     };
 

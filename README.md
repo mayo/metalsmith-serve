@@ -1,3 +1,5 @@
+I no longer use this project and do not maintain the code.
+
 [![Build Status](https://travis-ci.org/mayo/metalsmith-serve.svg?branch=master)](https://travis-ci.org/mayo/metalsmith-serve)
 
 # metalsmith-serve
